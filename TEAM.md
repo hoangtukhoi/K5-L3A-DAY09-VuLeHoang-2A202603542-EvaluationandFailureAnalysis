@@ -4,8 +4,8 @@
 
 - Tên nhóm: XYZ
 - Lớp: L3A
-- Repo nhóm: `K5-L3A-DAY08-TenNhom-FromWorkflowsToAgents` (xem [SUBMISSION.md](SUBMISSION.md))
-- URL repo, nhánh nộp, commit chốt: https://github.com/khanhhuy1714-hue/K5-L3A-DAY08-XYZ-FromWorkflowsToAgents/tree/main
+- Repo nhóm: `K5-L3A-Day8-XYZ-From-Workflows-to-Agents`
+- URL repo, nhánh nộp, commit chốt: https://github.com/khanhhuy1714-hue/K5-L3A-DAY08-XYZ-FromWorkflowsToAgents.git
 
 ## Thành viên
 
@@ -38,6 +38,25 @@ report/team/MSSV_HoTen.md
 Ví dụ: `report/team/20241234_NguyenVanAn.md`.
 
 Sao chép mục dưới đây cho từng thành viên.
+
+## 2A202603588_PhamHongKhanhHuy
+
+### Phần việc phụ trách
+
+- Cài đặt Shape B (`single` ReAct agent) trong `src/lab8/shapes/single.py` (CP2 & CP3).
+- Viết unit test bổ sung cho `single` trong `src/tests/test_single_extra.py`.
+
+### Đóng góp cụ thể
+
+- Cài đặt vòng lặp `run_react(..., max_steps=8)` chỉ dùng read tools (`get_claim_view`, `lookup_order`, `compute_compensation`), chống prompt injection từ ticket, truyền full quote vào `durability.issue_refund`, giữ nguyên `InjectedCrash` và ghi trace đúng contract.
+- Thêm `src/tests/test_single_extra.py` (34 test cases kiểm tra `READONLY_TOOLS`, 8-step cap, prompt injection, full quote, và `Budget`).
+
+### Bằng chứng
+
+- Commit `dd06b5f` (`feat(single): implement single ReAct shape and update TEAM.md`).
+- `python -m pytest -q`: `54 passed`.
+- `python -m pytest -q -m student -o addopts= -k "single]"`: `62 passed`.
+- `python -m pytest -q -m student -o addopts= -k single_extra`: `34 passed`.
 
 ## MSSV_HoTen
 
