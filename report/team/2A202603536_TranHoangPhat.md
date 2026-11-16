@@ -32,7 +32,9 @@ Shape C tổ chức luồng xử lý theo mô hình orchestrator và investigato
 - Truyền `crash_at` vào `issue_refund` và để `InjectedCrash` propagate cho crash test.
 - Thêm 13 test cho ranh giới handoff, worker read-only, chống lộ PII, không gọi host khi
   không có entitlement và kiểm tra full quote.
-- Commit chính: chưa tạo; cập nhật hash sau khi commit phần Shape C và test.
+- Commit Shape C: `1eb057a` (`implement orchestrator shape with safe handoff`).
+- Commit test và báo cáo cá nhân sau rebase: `20bba74`
+  (`add orchestrator tests and Tran Hoang Phat report`).
 
 ## 4. Bằng chứng
 
