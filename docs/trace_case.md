@@ -10,21 +10,15 @@ python -m lab9.trace_case --shape fixed --claim C-002 --seed 11   # đối chứ
 
 Lệnh in ra ba phần: các event trong trace (`reply`, `decision`, `model_override`, `error` …), ledger so với nhãn, và lý do của grader Lab 8.
 
-## Mẫu điền (mỗi nhóm 1 case, lấy từ trial đang fail trong report)
+## Case của nhóm
 
 | Trường | Nội dung |
 |---|---|
-| Trial | `<shape> <claim>@<seed>`, run ID trong report |
-| Triệu chứng | Grader nào fail; reply nói gì so với ledger ghi gì |
-| Bước sai đầu tiên | Số thứ tự event + kind + trích payload (≤1 dòng) |
-| Vì sao là bước *đầu tiên* | Các bước trước đó đúng ra sao (dẫn số event) |
-| Failure mode | Mã FM-xx trong `docs/failure_taxonomy.md` |
-| Đối chứng | Cùng claim@seed trên shape `fixed`: bước đó khác thế nào |
-| Regression test | Tên test + grader/assert nào bắt được; đã thấy fail trên variant lỗi và pass trên `fixed` chưa |
-| Chưa chắc chắn | Điều trace không chứng minh được |
-
-## Quy tắc
-
-- Đọc **ledger trước reply**: reply trôi chảy vẫn có thể đi kèm một khoản hoàn sai.
-- "Bước sai đầu tiên" phải dẫn số event cụ thể, không phải "agent bị nhầm".
-- Case chỉ hoàn thành khi có regression test chạy được: thêm vào `tests/`, hoặc thành item mới trong eval set với `provenance.from_trace`.
+| Trial | `seeded_regression C-002@11`, run `E-seeded_regression-20261117-4769` |
+| Triệu chứng | Lab 8 grader fail (`status resolved != denied`). Reply "LogiX đã hoàn 20.000đ cho đơn O-202" khớp ledger (20.000đ, 1 refund) nhưng nhãn là `denied`, 0đ. Reply trôi chảy và nhất quán với ledger, nên `reply_ledger_match` không bắt được. |
+| Bước sai đầu tiên | Event 3 `model_override {"delay_days": 5}`: agent ghi đè số ngày trễ của DB bằng số trong ticket (5 ngày). |
+| Vì sao là bước *đầu tiên* | Event 1 (handoff) và 2 (investigator `lookup_order`, đơn O-202 `delivered`, có số ngày thật từ DB) đúng. Từ event 3 trở đi quote (event 4: 20.000đ, `entitled`), reply (6) và ledger đều sai theo vì dùng số ngày bị ghi đè. |
+| Failure mode | FM-03 ticket_trust (kéo theo sai tiền ở FM-04) |
+| Đối chứng | `fixed C-002@11`: không có `model_override`; event 3 `quote` trả 0đ `no_entitlement`; reply "chưa đủ điều kiện"; status `denied`. |
+| Regression test | `tests/test_lab9_trace_case.py::test_ticket_trust_trace_is_caught`: `DbFactKept`, `RefundAmountCorrect`, `StatusMatches` fail trên trial lỗi, mọi grader pass trên trial `fixed`. Ở mức gate, `seeded_regression` bị chặn (exit 1) và `fixed` qua (exit 0). |
+| Chưa chắc chắn | Trace không cho biết agent vì sao chọn số ngày của ticket (MockLLM bắt chước bug switch). Chỉ thấy ở seed 11: shape `fixed` có `no_override` nên không tái hiện lỗi này ở seed `% 5 == 0` như swarm. |

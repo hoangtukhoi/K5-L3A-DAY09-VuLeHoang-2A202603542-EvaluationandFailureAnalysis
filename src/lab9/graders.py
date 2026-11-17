@@ -84,6 +84,26 @@ class ReplyMatchesLedger(Evaluator[Any, Trial]):
         return EvaluationReason(value=not bad, reason=f"reply states {bad}, ledger {ledger}" if bad else None)
 
 
+@dataclass
+class StatusMatches(Evaluator[Any, Trial]):
+    """FM-02, outcome level. The final status must equal the label's: a host denial reported as `resolved` fails
+    even when the ledger happens to be empty."""
+
+    def evaluate(self, ctx: EvaluatorContext[Any, Trial]) -> EvaluationReason:
+        got, want = ctx.output["result"].get("status"), (ctx.expected_output or {}).get("status")
+        return EvaluationReason(value=got == want, reason=None if got == want else f"status {got!r} != expected {want!r}")
+
+
+@dataclass
+class ProposalCorrect(Evaluator[Any, Trial]):
+    """FM-05 / FM-04, step level. The agent's proposal must equal the label's even when the host then denies
+    and the ledger stays empty (a pre-deducted 0 hides behind a correct-looking denial)."""
+
+    def evaluate(self, ctx: EvaluatorContext[Any, Trial]) -> EvaluationReason:
+        got, want = ctx.output["result"].get("proposal_amount"), (ctx.expected_output or {}).get("proposal_amount")
+        return EvaluationReason(value=got == want, reason=None if got == want else f"proposal {got} != expected {want}")
+
+
 # Order matters only for display. Names here are the metric ids in config/metric_spec.yaml.
 GRADERS: dict[str, type[Evaluator]] = {
     "pass_rate": TrialPass,
@@ -92,4 +112,6 @@ GRADERS: dict[str, type[Evaluator]] = {
     "refund_amount_correct": RefundAmountCorrect,
     "db_fact_kept": DbFactKept,
     "reply_ledger_match": ReplyMatchesLedger,
+    "status_correct": StatusMatches,
+    "proposal_correct": ProposalCorrect,
 }
