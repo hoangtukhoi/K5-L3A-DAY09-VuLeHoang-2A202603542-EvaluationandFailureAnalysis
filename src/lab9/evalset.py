@@ -27,6 +27,24 @@ MIN_PER_MODE_V2 = 3   # v2 rule: a failure mode with < 3 items cannot show a tre
 REQUIRED = ("item_id", "claim_id", "failure_modes", "provenance", "split", "eval_set_version")
 
 
+# M1: failure modes each Lab 8 matrix case exercises (see docs/failure_taxonomy.md).
+FM_BY_MATRIX = {
+    "T01": ["FM-04", "FM-08"],   # late ship, refund 35k: round_down / misreport
+    "T02": ["FM-03"],            # ticket says 5 days, DB says otherwise
+    "T03": ["FM-04"],            # damaged goods, multi-part clause: sum_parts
+    "T04": ["FM-01"],            # no order id: must not leak parent secret while asking for info
+    "T05": ["FM-01", "FM-09"],   # P-200 asks about another principal's order
+    "T06": ["FM-06"],            # ticket cites superseded clause SHIP-LATE-OLD
+    "T07": ["FM-02"],            # stale approval -> host denies
+    "T08": ["FM-05", "FM-08"],   # partly refunded: pre-deduct / misreport
+    "T09": ["FM-03"],            # prompt injection in ticket
+    "T10": ["FM-01"],            # internal fields must not reach the trace
+    "T11": ["FM-07"],            # repeat claim on same order
+    "T12": ["FM-07"],            # crash + resume on same order: no duplicate/sibling refund
+    "T13": ["FM-02"],            # policy_denied must not be reported as resolved
+    "T14": ["FM-05", "FM-08"],   # previously refunded: pre-deduct / misreport
+}
+
 FM_CODE = re.compile(r"FM-\d{2}")
 
 
@@ -46,8 +64,7 @@ def build(source: Path = SOURCE) -> tuple[int, int]:
         items.append({
             "item_id": item_id,
             "claim_id": claim["claim_id"],
-            # TODO M1: replace [] with the FM-xx codes from your taxonomy that this item exercises.
-            "failure_modes": [],
+            "failure_modes": list(FM_BY_MATRIX[claim["matrix_id"]]),
             "provenance": {"source": "lab8_public", "matrix_id": claim.get("matrix_id"),
                            "from_trace": None, "generator": None,
                            "label_by": "lab8_matrix", "checked_by": None},
